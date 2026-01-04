@@ -54,6 +54,9 @@
 
 ## 권장 설정 및 확장
 - 권장 확장(예): `ESLint`, `Prettier`, `EditorConfig`, `GitLens` 등 팀 표준에 맞춰 목록화
+- Git ignore: 워크스페이스 설정 파일은 개인 설정을 포함하므로 `.gitignore`에 추가해야 합니다. 권장 항목:
+  - `.vscode/`
+  - `*.code-workspace`
 - 워크스페이스 설정 위치
   - 단일 루트: `./.vscode/settings.json`
   - 멀티 루트: `.code-workspace` 파일의 `settings` 또는 각 폴더별 `.vscode/settings.json` 사용
