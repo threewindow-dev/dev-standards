@@ -88,6 +88,43 @@
    - `git submodule add https://github.com/threewindow-dev/dev-standards.git dev_standards`
    - 서브모듈 변경 사항은 별도의 커밋/PR로 관리하고, 필요시 주기적으로 업데이트하세요.
 
+## 16. 레포지토리 네이밍 규칙
+- 목적: 프로젝트 구조가 명확히 드러나도록 이름 규칙을 통일합니다.
+- 기본 원칙
+  - 모두 소문자, 단어는 `-`로 구분
+  - 공통 접두사로 `project-name`을 사용하여 관련 리포지토리 그룹화
+
+- 단일 저장소로 개발하는 경우 (간단한 프로젝트)
+  - 패턴: `{project-name}-simple`
+  - 예: `fastexit-simple`
+  - 설명: 서비스가 하나의 리포지토리로 충분할 때 사용
+
+- 다중 컴포넌트(마이크로서비스/멀티 리포지토리) 방식
+  - 패턴: `{project-name}-{service-name}-{type}`
+  - 예: `fastexit-admin-api`, `fastexit-user-web`, `fastexit-payments-worker`
+  - `type` 예시: `api`, `web`, `worker`, `db`, `infra` 등
+
+- 상위(모노) 레포지토리와 서브모듈 연결
+  - 상위 리포지토리 패턴: `{project-name}` (예: `fastexit`)
+  - 구성: 상위 리포지토리는 하위 서비스 리포지토리들을 서브모듈로 포함하여 전체 프로젝트 관리를 쉽게 함
+  - 예시 폴더 구조 (상위 리포지토리 `fastexit`):
+    - `services/admin-api` -> 서브모듈 pointing to `fastexit-admin-api`
+    - `services/user-web` -> 서브모듈 pointing to `fastexit-user-web`
+    - `libs/shared-auth` -> 서브모듈 pointing to `fastexit-shared-auth` (선택)
+
+- 서브모듈 연결 권장 절차
+  - 각 하위 리포지토리에서 이름 규칙 준수 후 퍼블리시
+  - 상위 리포지토리에서 아래와 같이 추가:
+    - `git submodule add https://github.com/<org>/fastexit-admin-api.git services/admin-api`
+    - `git submodule add https://github.com/<org>/fastexit-user-web.git services/user-web`
+  - 상위 리포지토리는 각 서브모듈 버전(커밋)을 고정하여 안정적 빌드를 보장
+
+- 권장사항
+  - 리포지토리 이름에 공백, 특수문자 사용 금지
+  - 서비스 영역이 명확하도록 `service-name`은 짧고 설명적으로 작성
+  - 공통 라이브러리/헬퍼는 `libs/` 또는 `shared-` 접두사로 구분
+
+
 ## 16. 참고 자료
 - Conventional Commits: https://www.conventionalcommits.org
 - Git 브랜칭 모델 참고: Git Flow, GitHub Flow 등
