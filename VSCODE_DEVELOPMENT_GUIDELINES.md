@@ -11,7 +11,7 @@
 - 단일 루트 워크스페이스 (Single-root)
   - 사용 대상: 단일 리포지토리/서비스로 충분한 프로젝트(`{project-name}-simple`).
   - 구성: 리포지토리 루트만 워크스페이스에 추가.
-  - `dev-standards` 처리: 리포지토리 루트에 `dev_standards` 서브모듈로 추가(권장). 워크스페이스에서 해당 폴더가 자동으로 노출됨.
+  - `dev-standards` 처리: 리포지토리 루트에 `dev-standards`를 서브모듈로 `.dev-standards` 폴더로 추가(권장). 워크스페이스에서 해당 폴더가 자동으로 노출됨.
 
 - 멀티 루트 워크스페이스 (Multi-root)
   - 사용 대상: 여러 서비스/리포지토리로 구성된 프로젝트(예: `fastexit`).
@@ -23,8 +23,8 @@
 - `dev-standards`는 **별도의 최상위 워크스페이스 폴더**로 둡니다.
   - 이유: 중앙화된 규칙·설정·스니펫 접근성 확보, 편리한 업데이트, 워크스페이스 전체에 일관된 노출
   - 구현 방식:
-    - 각 개발 리포지토리(서비스)에는 `dev_standards`를 Git 서브모듈로 추가(문서의 기존 규칙과 일치).
-    - 멀티 루트 워크스페이스에서는 `dev_standards` 또한 다른 서브모듈처럼 별도 폴더로 추가합니다.
+    - 각 개발 리포지토리(서비스)에는 `dev-standards`를 Git 서브모듈로 추가하고, 서브모듈 폴더명은 `.dev-standards`로 설정합니다(문서의 기존 규칙과 일치).
+    - 멀티 루트 워크스페이스에서는 `.dev-standards` 또한 다른 서브모듈처럼 별도 폴더로 추가합니다.
     - 워크스페이스(.code-workspace)에는 각 서비스 폴더와 함께 `.`(워크스페이스 루트)와 `dev_standards` 폴더를 반드시 맨 앞에 명시적으로 포함시켜 UI에 노출되도록 합니다.
   - `dev-standards`는 상위 리포지토리(`{project-name}`)에만 두고 하위 서비스는 상위 리포지토리를 통해 표준을 참조
 
@@ -41,7 +41,7 @@
 {
   "folders": [
     { "path": "." },
-    { "path": "dev_standards" },
+    { "path": ".dev-standards" },
     { "path": "services/admin-api" },
     { "path": "services/user-web" },
     { "path": "workspace-root" }

@@ -77,16 +77,16 @@
 - 커밋: `git commit -m "type(scope): subject"`
 - 최신 반영(rebase): `git fetch origin && git rebase origin/main`
 - PR 생성 후 머지(예시): `git checkout main && git pull && git merge --no-ff feature/xxx && git push`
- - 서브모듈로 `dev_standards` 추가: `git submodule add <repo-url> dev_standards`
+ - 서브모듈로 `dev-standards` 추가: `git submodule add <repo-url> .dev-standards`
  - 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
  - 원격 서브모듈을 최신으로 당기기: `git submodule update --remote --merge`
 
 ## 15. 시행 및 준수
 - 이 표준은 팀 합의 하에 정기적으로 업데이트
 - CI/저장소 보호 규칙으로 주요 규칙을 강제 적용
- - 각 프로젝트 루트 리포지토리에는 `dev_standards` 저장소를 서브모듈로 `dev_standards` 폴더에 추가해야 합니다. 예:
-   - `git submodule add https://github.com/threewindow-dev/dev-standards.git dev_standards`
-   - 서브모듈 변경 사항은 별도의 커밋/PR로 관리하고, 필요시 주기적으로 업데이트하세요.
+  - 각 프로젝트 루트 리포지토리에는 `dev-standards` 저장소를 서브모듈로 `.dev-standards` 폴더에 추가해야 합니다. 예:
+    - `git submodule add https://github.com/threewindow-dev/dev-standards.git .dev-standards`
+    - 서브모듈 변경 사항은 별도의 커밋/PR로 관리하고, 필요시 주기적으로 업데이트하세요.
 
 ## 16. 레포지토리 네이밍 규칙
 - 목적: 프로젝트 구조가 명확히 드러나도록 이름 규칙을 통일합니다.
