@@ -1,0 +1,82 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: My API (Template)
+  version: 1.0.0
+  description: |
+    템플릿용 OpenAPI 3.1 골격입니다. 실제 서비스에 맞게 `paths`와 `components`를 채우세요.
+servers:
+  - url: https://api.example.com/v1
+
+paths:
+  /items:
+    get:
+      summary: List items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+    post:
+      summary: Create item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+      required: [id, name]
+
+    ItemCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required: [name]
+
+    ItemList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Item'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        사용자 인증은 Bearer 토큰을 사용합니다.
+        
+        형식: Authorization: Bearer <token>
+        
+        토큰 타입: JWT
+        토큰 만료: 1시간 (정책에 따라 조정)
+        Refresh 토큰: 선택사항 (필요시 POST /auth/refresh 엔드포인트 제공)
+        
+        유효하지 않거나 만료된 토큰은 401 Unauthorized 응답합니다.
+
+security:
+  - bearerAuth: []
