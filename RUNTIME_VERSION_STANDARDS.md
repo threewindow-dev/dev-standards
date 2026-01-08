@@ -1,13 +1,13 @@
-# 런타임 버전 선택 표준
+# 런타임 및 프레임워크 버전 선택 표준
 
 ## 목적
-- 프로젝트에서 사용하는 런타임(Node.js, Python, Java) 버전을 선택하는 일관된 기준을 제공합니다.
+- 프로젝트에서 사용하는 런타임(Node.js, Python, Java) 및 주요 프레임워크 버전을 선택하는 일관된 기준을 제공합니다.
 - 안정성과 최신성의 균형을 유지하여 보안 업데이트와 새로운 기능을 적절히 활용합니다.
 
 ## 적용 대상
 - threewindow-dev 조직의 모든 개발 프로젝트
 
-## 버전 선택 기준
+## 런타임 버전 선택 기준
 
 ### Node.js
 - **기준**: LTS (Long Term Support) 버전 사용
@@ -62,7 +62,59 @@
   - 현재 최신: PostgreSQL 18.2 → **18** 사용 ✅ (두 번째 패치 릴리즈 완료)
   - 현재 최신: PostgreSQL 18.0 → **17** 사용 ✅ (패치 릴리즈 없음)
 
-## 버전 업데이트 주기
+## 프레임워크 버전 선택 가이드라인
+
+프레임워크와 라이브러리는 런타임보다 빠른 릴리즈 주기와 프로젝트별 다른 요구사항으로 인해 엄격한 표준 대신 가이드라인을 제공합니다.
+
+### Python FastAPI
+- **권장 방침**: 최신 stable 버전 사용
+- **가이드라인**:
+  - 새 프로젝트: 최신 메이저 버전 사용 (현재 0.x 단계이므로 최신 0.x 버전)
+  - 기존 프로젝트: 마이너 버전 업데이트는 정기적으로 검토, 메이저 버전은 Breaking Changes 확인 후 결정
+  - 보안 패치: 즉시 적용
+- **이유**:
+  - FastAPI는 활발히 개발 중이며 성능 개선과 새 기능이 자주 추가됨
+  - Python 3.13과의 호환성을 위해 최신 버전 유지 필요
+  - 타입 힌트와 Pydantic 업데이트를 최대한 활용
+- **참고**: [FastAPI Release Notes](https://fastapi.tiangolo.com/release-notes/)
+
+### Node.js React
+- **권장 방침**: 최신 stable 메이저 버전 사용
+- **가이드라인**:
+  - 새 프로젝트: React 18 이상 사용 (Concurrent Features 활용)
+  - 기존 프로젝트: React 16/17 → 18 마이그레이션 가이드 참고하여 단계적 업그레이드
+  - 보안 패치: 즉시 적용
+  - TypeScript 사용 권장 (타입 안정성)
+- **이유**:
+  - React 18의 Concurrent Rendering, Automatic Batching 등 성능 개선 기능 활용
+  - 최신 생태계(Next.js, Remix 등)와의 호환성
+  - 커뮤니티 지원과 라이브러리 호환성
+- **메이저 버전 업그레이드**: Breaking Changes가 크지 않으므로 적극 권장
+- **참고**: [React Releases](https://react.dev/blog)
+
+### Java Spring Framework
+- **권장 방침**: Spring Boot 최신 stable 버전 사용
+- **가이드라인**:
+  - 새 프로젝트: Spring Boot 3.x 사용 (Java 17+ 필수, Java 25 권장)
+  - 기존 프로젝트: Spring Boot 2.x는 2025년 말 지원 종료 예정, 마이그레이션 계획 수립
+  - 보안 패치: 즉시 적용 (Spring Security 관련 특히 중요)
+  - Spring Cloud 사용 시 호환성 매트릭스 확인
+- **이유**:
+  - Spring Boot 3.x는 네이티브 이미지, 관찰성(Observability) 개선 등 현대적 기능 제공
+  - Jakarta EE 전환 완료로 장기적 안정성 확보
+  - GraalVM Native Image 지원으로 성능 최적화 가능
+- **메이저 버전 업그레이드**: 
+  - 2.x → 3.x는 Breaking Changes 존재 (javax.* → jakarta.*)
+  - 충분한 테스트와 단계적 마이그레이션 필요
+- **참고**: [Spring Boot Support](https://spring.io/projects/spring-boot#support)
+
+### 공통 원칙
+1. **보안 최우선**: 보안 취약점 발견 시 즉시 패치 버전 업데이트
+2. **의존성 관리**: Dependabot, Renovate 등 자동화 도구 활용 권장
+3. **테스트 커버리지**: 버전 업그레이드 전 충분한 테스트 작성
+4. **단계적 적용**: 개발 → 스테이징 → 프로덕션 순으로 검증 후 배포
+
+## 런타임 버전 업데이트 주기
 
 ### 정기 검토
 - **주기**: 분기별 (3개월)
@@ -99,6 +151,11 @@
 
 ### 데이터베이스
 - PostgreSQL: 17
+
+### 주요 프레임워크
+- FastAPI: 0.115.x (최신 stable)
+- React: 18.x
+- Spring Boot: 3.4.x
 ```
 
 #### 2. .tool-versions 파일 작성
@@ -145,7 +202,14 @@ postgres 17.2
 - 주석을 사용하여 특정 버전 선택 이유 설명 가능
 
 ## 참고 자료
+
+### 런타임
 - [Node.js Release Schedule](https://github.com/nodejs/release#release-schedule)
 - [Python Release Schedule](https://peps.python.org/pep-0602/)
 - [Java Support Roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 - [PostgreSQL Versioning Policy](https://www.postgresql.org/support/versioning/)
+
+### 프레임워크
+- [FastAPI Release Notes](https://fastapi.tiangolo.com/release-notes/)
+- [React Blog & Releases](https://react.dev/blog)
+- [Spring Boot Support](https://spring.io/projects/spring-boot#support)
