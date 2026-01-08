@@ -8,6 +8,9 @@ threewindow-dev의 github 저장소에서 관리되는 개발프로젝트에 적
 - [유스케이스 표준](USE_CASE_STANDARDS.md) - 유스케이스 작성 표준
 - [API 스펙 표준](API_SPEC_STANDARDS.md) - OpenAPI 스펙 작성 표준
 
+### 프로젝트 구조 관련
+- [프로젝트 구조 표준](PROJECT_STRUCTURE_STANDARDS.md) - 싱글/멀티 레포지토리 폴더 구조 표준
+
 ### 개발 환경 관련
 - [VS Code 개발 표준](VSCODE_DEVELOPMENT_GUIDELINES.md) - VS Code 워크스페이스 구성 및 설정 표준
 - [Git 개발 가이드라인](GIT_DEVELOPMENT_GUIDELINES.md) - Git 브랜치 전략 및 커밋 규칙
