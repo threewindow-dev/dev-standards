@@ -4,47 +4,112 @@
 - 팀이 동일한 VS Code 환경에서 개발하도록 권장하고, 워크스페이스 구성과 `dev-standards` 노출 방식을 표준화합니다.
 
 ## 적용 대상
-- 단일 저장소로 개발하는 프로젝트(예: `fastexit-simple`)
-- 다중 서비스로 구성된 프로젝트(예: `fastexit`)
+- 단일 리포지토리 프로젝트 (예: `fastexit-simple`)
+- 멀티 리포지토리 프로젝트 (예: `fastexit`)
+
+## 용어 정의
+
+### Git 구조 용어
+- **리포지토리(Repository)**: Git으로 버전 관리되는 단일 코드베이스
+- **서브모듈(Submodule)**: 다른 리포지토리를 하위 디렉토리로 포함하는 Git 기능
+- **단일 리포지토리 프로젝트**: 하나의 리포지토리로 구성된 프로젝트
+- **멀티 리포지토리 프로젝트**: 여러 개의 독립된 리포지토리로 구성된 프로젝트 (주로 마이크로서비스 아키텍처)
+
+### VS Code 구조 용어
+- **단일 루트 워크스페이스(Single-root Workspace)**: 하나의 폴더를 루트로 하는 VS Code 작업 환경
+- **멀티 루트 워크스페이스(Multi-root Workspace)**: 여러 폴더를 동시에 열어 작업하는 VS Code 환경 (`.code-workspace` 파일로 정의)
+
+### 권장 매핑
+- **단순 프로젝트**: 단일 리포지토리 = 단일 루트 워크스페이스
+- **복잡한 프로젝트**: 멀티 리포지토리 = 멀티 루트 워크스페이스
 
 ## 워크스페이스 유형 요약
-- 단일 루트 워크스페이스 (Single-root)
-  - 사용 대상: 단일 리포지토리/서비스로 충분한 프로젝트(`{project-name}-simple`).
-  - 구성: 리포지토리 루트만 워크스페이스에 추가.
-  - `dev-standards` 처리: 리포지토리 루트에 `dev-standards`를 서브모듈로 `.dev-standards` 폴더로 추가(권장). 워크스페이스에서 해당 폴더가 자동으로 노출됨.
 
-- 멀티 루트 워크스페이스 (Multi-root)
-  - 사용 대상: 여러 서비스/리포지토리로 구성된 프로젝트(예: `fastexit`).
-  - 구성: 각 서비스 리포지토리를 폴더로 추가하고, 상위 워크스페이스 루트도 폴더로 포함하여 `dev-standards`가 보이도록 함.
-  - 예: 워크스페이스에 `services/admin-api`, `services/user-web`, 그리고 `workspace-root`(상위 repo)를 추가하고 `dev_standards`를 별도 폴더로 포함시킵니다.
-  - 멀티 루트 워크스페이스 규칙: 워크스페이스 폴더 목록에는 항상 먼저 작업공간 루트(`.`)를 추가하고, 그다음 `dev_standards` 폴더를 추가한 뒤에 다른 서비스/서브모듈 폴더를 나열하세요. 이렇게 하면 루트의 설계 문서와 `dev_standards`가 항상 워크스페이스 상단에 노출됩니다.
+### 단일 루트 워크스페이스 (Single-root)
+- **사용 대상**: 단일 리포지토리 프로젝트 (`{project-name}-simple`)
+- **구성**: 리포지토리 루트만 워크스페이스에 추가
+- **`dev-standards` 처리**: 리포지토리 루트에 `dev-standards`를 Git 서브모듈로 `.dev-standards` 폴더로 추가(권장). 워크스페이스에서 해당 폴더가 자동으로 노출됨
+- **설계 문서**: 리포지토리 루트의 `docs/design/` 폴더에 모든 설계 문서 위치
+
+### 멀티 루트 워크스페이스 (Multi-root)
+- **사용 대상**: 멀티 리포지토리 프로젝트 (예: `fastexit`)
+- **구성**: 
+  - 상위 리포지토리 루트를 첫 번째 폴더로 추가 (공통 설계 문서 포함)
+  - `.dev-standards` 폴더를 두 번째 폴더로 추가
+  - 각 서비스 리포지토리(Git 서브모듈)를 별도 폴더로 추가
+- **멀티 루트 워크스페이스 규칙**: 워크스페이스 폴더 목록에는 항상 먼저 상위 리포지토리 루트(`.`)를 추가하고, 그 다음 `.dev-standards` 폴더를 추가한 뒤 다른 서비스/서브모듈 폴더를 나열하세요. 이렇게 하면 공통 설계 문서와 개발 표준이 항상 워크스페이스 상단에 노출됩니다.
+- **설계 문서**: 
+  - 공통 설계 문서 (glossary, 유스케이스): 상위 리포지토리 루트의 `docs/design/`
+  - 서비스별 API 스펙: 각 서비스 리포지토리의 `docs/design/api-specs/`
 
 ## `dev-standards` 폴더 전략
 - `dev-standards`는 **별도의 최상위 워크스페이스 폴더**로 둡니다.
-  - 이유: 중앙화된 규칙·설정·스니펫 접근성 확보, 편리한 업데이트, 워크스페이스 전체에 일관된 노출
-  - 구현 방식:
-    - 각 개발 리포지토리(서비스)에는 `dev-standards`를 Git 서브모듈로 추가하고, 서브모듈 폴더명은 `.dev-standards`로 설정합니다(문서의 기존 규칙과 일치).
-    - 멀티 루트 워크스페이스에서는 `.dev-standards` 또한 다른 서브모듈처럼 별도 폴더로 추가합니다.
-    - 워크스페이스(.code-workspace)에는 각 서비스 폴더와 함께 `.`(워크스페이스 루트)와 `dev_standards` 폴더를 반드시 맨 앞에 명시적으로 포함시켜 UI에 노출되도록 합니다.
-  - `dev-standards`는 상위 리포지토리(`{project-name}`)에만 두고 하위 서비스는 상위 리포지토리를 통해 표준을 참조
+  - **이유**: 중앙화된 규칙·설정·스니펫 접근성 확보, 편리한 업데이트, 워크스페이스 전체에 일관된 노출
+  - **구현 방식**:
+    - 각 리포지토리에는 `dev-standards`를 Git 서브모듈로 추가하고, 서브모듈 폴더명은 `.dev-standards`로 설정합니다
+    - 멀티 루트 워크스페이스에서는 `.dev-standards` 폴더를 별도 폴더로 명시적으로 추가합니다
+    - 워크스페이스(`.code-workspace`)에는 `.`(상위 리포지토리 루트)와 `.dev-standards` 폴더를 반드시 맨 앞에 포함시켜 UI에 노출되도록 합니다
+  - **멀티 리포지토리 프로젝트**: `dev-standards`는 상위 리포지토리(`{project-name}`)에만 두고 하위 서비스 리포지토리는 상위 리포지토리를 통해 표준을 참조
 
-## 워크스페이스 예시
-- 단일 루트 (`fastexit-simple`) — 서브모듈 포함 구조
-  - 폴더 구조 예:
-    - `fastexit-simple/`
-      - `src/`
-      - `dev_standards/` (submodule)
-      - `.vscode/`
+## 프로젝트 유형별 폴더 구조 예시
 
-- 멀티 루트 (.code-workspace 예시)
+### 단일 리포지토리 프로젝트 (`fastexit-simple`)
+```
+fastexit-simple/                 # 리포지토리 루트 = 워크스페이스 루트
+├── docs/
+│   └── design/                  # 설계 문서 폴더
+│       ├── glossary.md          # 도메인 용어 사전
+│       ├── use-cases/           # 유스케이스
+│       │   ├── business/        # 업무 유스케이스
+│       │   └── functional/      # 기능 유스케이스
+│       └── api-specs/           # API 스펙
+│           └── openapi.yaml
+├── src/                         # 소스 코드
+├── .dev-standards/              # dev-standards 서브모듈
+└── .vscode/
+```
+
+### 멀티 리포지토리 프로젝트 (`.code-workspace` 예시)
+```
+fastexit/                        # 상위 리포지토리 루트
+├── docs/
+│   └── design/                  # 공통 설계 문서 폴더
+│       ├── glossary.md          # 전체 프로젝트 공통 용어
+│       └── use-cases/           # 전체 프로젝트 공통 유스케이스
+│           ├── business/
+│           └── functional/
+├── .dev-standards/              # dev-standards 서브모듈
+├── services/                    # 서비스 리포지토리들 (Git 서브모듈)
+│   ├── admin-api/               # 개별 서비스 리포지토리
+│   │   ├── docs/
+│   │   │   └── design/
+│   │   │       └── api-specs/   # 이 서비스의 API 스펙
+│   │   │           └── openapi.yaml
+│   │   └── src/
+│   ├── user-web/                # 개별 서비스 리포지토리
+│   │   ├── docs/
+│   │   │   └── design/
+│   │   │       └── api-specs/   # 이 서비스의 API 스펙
+│   │   │           └── openapi.yaml
+│   │   └── src/
+│   └── payment-service/
+│       ├── docs/
+│       │   └── design/
+│       │       └── api-specs/
+│       │           └── openapi.yaml
+│       └── src/
+└── .code-workspace              # 멀티 루트 워크스페이스 정의
+```
+
+**멀티 루트 워크스페이스 설정 예시 (`.code-workspace`)**:
 ```json
 {
   "folders": [
-    { "path": "." },
-    { "path": ".dev-standards" },
-    { "path": "services/admin-api" },
-    { "path": "services/user-web" },
-    { "path": "workspace-root" }
+    { "path": ".", "name": "📁 프로젝트 루트 (공통 문서)" },
+    { "path": ".dev-standards", "name": "📋 개발 표준" },
+    { "path": "services/admin-api", "name": "🔧 Admin API" },
+    { "path": "services/user-web", "name": "🌐 User Web" },
+    { "path": "services/payment-service", "name": "💳 Payment Service" }
   ],
   "settings": {
     // 워크스페이스 공통 설정
@@ -71,10 +136,19 @@
 - 권한/보안: 워크스페이스에 외부 스크립트/설정 포함 시 보안 검토 필수
 
 ## 권장 액션 아이템
-- 새 프로젝트 시작 시:
-  - 단순 프로젝트: `git submodule add <repo-url> dev_standards`
-  - 멀티 서비스 프로젝트: 상위 워크스페이스에 `dev_standards` 폴더 추가하고, 각 서비스 저장소에도 서브모듈로 추가(선택)
-- 필요 시 `dev_standards`에 공유 VS Code 설정(`settings`, `snippets`, `extensions.json`)을 두어 워크스페이스가 쉽게 일관되도록 구성
 
----
-문서는 팀 상황에 따라 조정 가능합니다. 원하시면 예제 `.code-workspace` 파일을 실제로 생성해 드리겠습니다.
+### 새 프로젝트 시작 시
+- **단일 리포지토리 프로젝트**:
+  - `git submodule add <repo-url> .dev-standards` 실행
+  - `docs/design/` 폴더 구조 생성 ([DESIGN_DOCUMENT_LOCATION.md](DESIGN_DOCUMENT_LOCATION.md) 참조)
+- **멀티 리포지토리 프로젝트**:
+  - 상위 리포지토리에 `.dev-standards` 서브모듈 추가
+  - 상위 리포지토리에 `docs/design/` 폴더 생성 (공통 문서용)
+  - 각 서비스 리포지토리에 `docs/design/api-specs/` 폴더 생성
+  - `.code-workspace` 파일 생성 및 폴더 순서 설정
+- 필요 시 `.dev-standards`에 공유 VS Code 설정(`settings`, `snippets`, `extensions.json`)을 두어 워크스페이스가 쉽게 일관되도록 구성
+
+## 관련 문서
+- [설계 문서 위치 및 폴더 구조 표준](DESIGN_DOCUMENT_LOCATION.md)
+- [설계 문서 작성 순서](DESIGN_DOCUMENT_ORDER.md)
+- [Git 개발 가이드라인](GIT_DEVELOPMENT_GUIDELINES.md)
