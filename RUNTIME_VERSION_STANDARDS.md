@@ -69,7 +69,7 @@
 ### Python FastAPI
 - **권장 방침**: 최신 stable 버전 사용
 - **가이드라인**:
-  - 새 프로젝트: 최신 메이저 버전 사용 (현재 0.x 단계이므로 최신 0.x 버전)
+  - 새 프로젝트: 최신 메이저 버전 사용 (현재 0.127.x 권장)
   - 기존 프로젝트: 마이너 버전 업데이트는 정기적으로 검토, 메이저 버전은 Breaking Changes 확인 후 결정
   - 보안 패치: 즉시 적용
 - **이유**:
@@ -81,8 +81,8 @@
 ### Node.js React
 - **권장 방침**: 최신 stable 메이저 버전 사용
 - **가이드라인**:
-  - 새 프로젝트: React 18 이상 사용 (Concurrent Features 활용)
-  - 기존 프로젝트: React 16/17 → 18 마이그레이션 가이드 참고하여 단계적 업그레이드
+  - 새 프로젝트: React 19 사용 (최신 Concurrent Features 및 성능 개선)
+  - 기존 프로젝트: React 18 → 19 마이그레이션 가이드 참고하여 단계적 업그레이드
   - 보안 패치: 즉시 적용
   - TypeScript 사용 권장 (타입 안정성)
 - **이유**:
@@ -91,6 +91,22 @@
   - 커뮤니티 지원과 라이브러리 호환성
 - **메이저 버전 업그레이드**: Breaking Changes가 크지 않으므로 적극 권장
 - **참고**: [React Releases](https://react.dev/blog)
+
+### Node.js Next.js
+- **권장 방침**: 최신 stable 메이저 버전 사용
+- **가이드라인**:
+  - 새 프로젝트: Next.js 15 사용 (App Router, Server Components 최적화)
+  - 기존 프로젝트: Pages Router → App Router 마이그레이션 고려
+  - Turbopack 활용 권장 (빌드 성능 개선)
+- **이유**:
+  - React Server Components 완전 지원
+  - 향상된 캐싱 및 성능 최적화
+  - Turbopack을 통한 빠른 개발 환경
+  - Vercel 최적화 및 엣지 런타임 지원
+- **메이저 버전 업그레이드**:
+  - 14 → 15는 주요 API 변경 포함
+  - 마이그레이션 가이드 참고 필수
+- **참고**: [Next.js Releases](https://nextjs.org/blog)
 
 ### Java Spring Framework
 - **권장 방침**: Spring Boot 최신 stable 버전 사용
@@ -153,8 +169,9 @@
 - PostgreSQL: 17
 
 ### 주요 프레임워크
-- FastAPI: 0.115.x (최신 stable)
-- React: 18.x
+- FastAPI: 0.127.x (최신 stable)
+- React: 19.x
+- Next.js: 15.x
 - Spring Boot: 3.4.x
 ```
 
