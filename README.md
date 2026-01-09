@@ -17,6 +17,9 @@ threewindow-dev의 github 저장소에서 관리되는 개발프로젝트에 적
 - [런타임 버전 선택 표준](RUNTIME_VERSION_STANDARDS.md) - Node.js, Python, Java 버전 선택 기준
 - [Node.js BFF 표준](BFF_NODE_STANDARDS.md) - Next.js/Express 기반 BFF 구현 가이드
 
+### 배포 관련
+- [싱글 컨테이너 배포 표준](SINGLE_CONTAINER_DEPLOYMENT_STANDARDS.md) - supervisord 기반 단일 Docker 컨테이너 배포 표준
+
 ## 템플릿
 - [Glossary 템플릿](templates/glossary_template.md)
 - [업무 유스케이스 템플릿](templates/business_use_case_template.md)
