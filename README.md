@@ -15,6 +15,7 @@ threewindow-dev의 github 저장소에서 관리되는 개발프로젝트에 적
 - [VS Code 개발 표준](VSCODE_DEVELOPMENT_GUIDELINES.md) - VS Code 워크스페이스 구성 및 설정 표준
 - [Git 개발 가이드라인](GIT_DEVELOPMENT_GUIDELINES.md) - Git 브랜치 전략 및 커밋 규칙
 - [런타임 버전 선택 표준](RUNTIME_VERSION_STANDARDS.md) - Node.js, Python, Java 버전 선택 기준
+- [Node.js BFF 표준](BFF_NODE_STANDARDS.md) - Next.js/Express 기반 BFF 구현 가이드
 
 ## 템플릿
 - [Glossary 템플릿](templates/glossary_template.md)
