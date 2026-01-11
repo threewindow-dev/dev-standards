@@ -11,5 +11,6 @@
 
 ## 관련 표준
 - [트랜잭션 관리](TRANSACTION_MANAGEMENT.md)
+- [에러 처리](ERROR_HANDLING.md)
 - [테스트 전략](TESTING_STRATEGY.md)
 - [FastAPI 개발 표준](FASTAPI_DEVELOPMENT_STANDARDS.md)
