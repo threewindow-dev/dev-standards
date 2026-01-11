@@ -157,8 +157,6 @@ infra/clients/payments_client.py   # 복수형 지양
 ```
 
 #### 1.9 Core & Utils
-- **기능 설명 + 필요 시 접미사**
-- 공통 모듈은 명확한 역할 표현
 
 ```
 ✅ 권장
