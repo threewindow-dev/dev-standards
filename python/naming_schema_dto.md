@@ -91,6 +91,240 @@ class GetUserPagedListRequest(BaseModel):
 
 ---
 
+### 2.1.1 응답 구조 표준 (Response Body Format)
+
+모든 API 응답은 일관된 래핑 구조를 사용합니다. 성공/실패 모두 동일한 필드 구조로 클라이언트 파싱 로직을 단순화합니다.
+
+#### 기본 원칙
+- **모든 응답**은 `code`, `message`, `data` 필드를 가짐
+- **HTTP Status**로 성공/실패 1차 구분
+- **Body `code`**로 비즈니스 세부 상태 표현 (문자열, UPPER_SNAKE_CASE)
+- 성공/실패 모두 `data`로 통일 (일관성)
+
+#### 응답 구조
+
+```python
+class ApiResponse(BaseModel, Generic[T]):
+    """공통 API 응답 래퍼"""
+    code: str          # 비즈니스 코드 (SUCCESS, CREATED, USER_EMAIL_DUPLICATED 등)
+    message: str       # 사람이 읽을 수 있는 메시지
+    data: T | None     # 성공 시 리소스/결과, 실패 시 에러 상세 정보
+```
+
+#### 성공 응답 예시
+
+##### POST (생성, 201)
+```python
+# HTTP 201 Created
+{
+  "code": "CREATED",
+  "message": "User created successfully",
+  "data": {
+    "id": 123,
+    "email": "user@example.com",
+    "name": "John Doe",
+    "created_at": "2026-01-11T10:30:00Z"
+  }
+}
+```
+
+##### GET (조회, 200)
+```python
+# HTTP 200 OK
+{
+  "code": "SUCCESS",
+  "message": "User retrieved",
+  "data": {
+    "id": 123,
+    "email": "user@example.com",
+    "name": "John Doe"
+  }
+}
+```
+
+##### GET (목록/페이징, 200)
+```python
+# HTTP 200 OK
+{
+  "code": "SUCCESS",
+  "message": "User list retrieved",
+  "data": {
+    "items": [
+      {"id": 1, "email": "user1@example.com"},
+      {"id": 2, "email": "user2@example.com"}
+    ],
+    "total_count": 100,
+    "page": 1,
+    "page_size": 20
+  }
+}
+```
+
+##### PUT/PATCH (수정, 200)
+```python
+# HTTP 200 OK
+{
+  "code": "UPDATED",
+  "message": "User updated successfully",
+  "data": {
+    "id": 123,
+    "email": "newemail@example.com",
+    "name": "John Doe",
+    "updated_at": "2026-01-11T11:00:00Z"
+  }
+}
+```
+
+##### DELETE (삭제, 200 또는 204)
+```python
+# HTTP 200 OK (본문 포함)
+{
+  "code": "DELETED",
+  "message": "User deleted successfully",
+  "data": {
+    "id": 123,
+    "deleted_at": "2026-01-11T11:30:00Z"
+  }
+}
+
+# HTTP 204 No Content (본문 없음) - 선택 가능
+```
+
+#### 에러 응답 예시
+
+##### 400 Bad Request (유효성 검증 실패)
+```python
+# HTTP 400 Bad Request
+{
+  "code": "VALIDATION_ERROR",
+  "message": "Invalid input data",
+  "data": {
+    "errors": [
+      {"field": "email", "message": "Invalid email format"},
+      {"field": "name", "message": "Name is required"}
+    ]
+  }
+}
+```
+
+##### 400 Bad Request (비즈니스 규칙 위반)
+```python
+# HTTP 400 Bad Request
+{
+  "code": "USER_EMAIL_DUPLICATED",
+  "message": "Email already exists",
+  "data": {
+    "field": "email",
+    "value": "user@example.com"
+  }
+}
+```
+
+##### 401 Unauthorized
+```python
+# HTTP 401 Unauthorized
+{
+  "code": "AUTHENTICATION_FAILED",
+  "message": "Invalid credentials",
+  "data": null
+}
+```
+
+##### 403 Forbidden
+```python
+# HTTP 403 Forbidden
+{
+  "code": "PERMISSION_DENIED",
+  "message": "You do not have permission to access this resource",
+  "data": {
+    "required_permission": "admin",
+    "user_role": "user"
+  }
+}
+```
+
+##### 404 Not Found
+```python
+# HTTP 404 Not Found
+{
+  "code": "RESOURCE_NOT_FOUND",
+  "message": "User not found",
+  "data": {
+    "resource_type": "User",
+    "resource_id": 999
+  }
+}
+```
+
+##### 409 Conflict
+```python
+# HTTP 409 Conflict
+{
+  "code": "RESOURCE_CONFLICT",
+  "message": "Optimistic lock failure",
+  "data": {
+    "expected_version": 5,
+    "actual_version": 6
+  }
+}
+```
+
+##### 500 Internal Server Error
+```python
+# HTTP 500 Internal Server Error
+{
+  "code": "INTERNAL_SERVER_ERROR",
+  "message": "An unexpected error occurred",
+  "data": {
+    "trace_id": "abc123def456"
+  }
+}
+```
+
+#### 비즈니스 코드 (code) 네이밍 규칙
+- **형식**: UPPER_SNAKE_CASE 문자열
+- **도메인 접두사**: `{DOMAIN}_{상태}` (예: `USER_EMAIL_DUPLICATED`, `ORDER_ALREADY_SHIPPED`)
+- **성공 코드**: `SUCCESS`, `CREATED`, `UPDATED`, `DELETED`, `PARTIAL_SUCCESS`
+- **에러 코드**: 구체적이고 의미 있는 식별자 (HTTP Status와 중복 X)
+
+#### 클라이언트 처리 규칙
+
+1. **1단계: HTTP Status 확인**
+   - `2xx`: 성공 → `data`에서 리소스 파싱
+   - `4xx/5xx`: 에러 → `code`로 세부 에러 분기, `data`에서 에러 상세 정보 파싱
+
+2. **2단계: Body `code` 활용**
+   - 성공 시: `code`로 추가 액션 판단 (`PARTIAL_SUCCESS`, `CREATED` 등)
+   - 에러 시: `code`로 UX 분기 (메시지 커스터마이징, 재시도 로직 등)
+
+3. **3단계: `data` 파싱**
+   - 성공: 리소스 객체/목록
+   - 에러: 에러 상세 정보 (필드, 값, 추가 컨텍스트)
+
+#### 클라이언트 예시 (TypeScript)
+
+```typescript
+if (response.status >= 400) {
+  // 에러 처리
+  switch (response.data.code) {
+    case 'USER_EMAIL_DUPLICATED':
+      showError('이미 사용 중인 이메일입니다.');
+      break;
+    case 'PERMISSION_DENIED':
+      redirectToLogin();
+      break;
+    default:
+      showError(response.data.message);
+  }
+} else {
+  // 성공 처리
+  const user = response.data.data;
+  console.log('User created:', user.id);
+}
+```
+
+---
+
 ### 2.2 DTO 클래스 (application/dtos/)
 
 DTO는 Application Layer와 다른 레이어 간 데이터 전송을 위한 모델입니다. CQRS 패턴을 따라 Command(CUD)와 Query(R)로 명확히 구분합니다.

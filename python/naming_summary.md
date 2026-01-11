@@ -18,21 +18,23 @@
 | Schemas | `_schema` | 단수 | `user_schema.py` |
 | Routers | `_router` | 단수 | `user_router.py` |
 | Clients | `_client` | 단수 | `payment_client.py` |
+ 
+## 메서드 네이밍 (레이어별)
+
+| 레이어 | 패턴 | 설명 | 예시 |
+|--------|------|------|------|
+| Interface (Router) | `post_{resource}` / `put_{resource}` / `patch_{resource}` / `delete_{resource}` | HTTP 메서드에 1:1 대응 | `post_user` |
+| Interface (Router) | `get_{resource}` / `get_{resource}_list` / `get_{resource}_paged_list` | 조회, 목록, 페이징 | `get_user_paged_list` |
+| Application (App/Int/Query Service) | `register_{resource}` / `update_{resource}` / `delete_{resource}` | 상태 변경 유스케이스 | `register_user` |
+| Application (App/Query Service) | `get_{resource}` / `get_{resource}_list` / `get_{resource}_paged_list` | 조회 유스케이스 | `get_user_list` |
+| Domain (Domain Service / Repository Port) | `create_{entity}` / `update_{entity}` / `delete_{entity}` | 도메인 명령 | `create_user` |
+| Domain (Domain Service / Repository Port) | `get_{entity}_by_id` / `query_{entity}` | 조회/검색 | `get_user_by_id`, `query_user` |
+
+### Repository 메서드 추가 규칙
+- 존재 여부 확인은 `exists_by_{field}` 메서드 사용 (EXISTS 쿼리로 최적화)
+- AppService에서 무결성 검증 시 `get_{entity}_by_id` 대신 `exists_by_{entity}_id` 우선 사용
 
 ## 버전 이력
-- 1.8.3 (2026-01-11): 도메인 예약 네이밍(Criteria/Command/Dto)과 인프라 전용 모델 네이밍 충돌 방지 가이드 추가
-- 1.8.2 (2026-01-11): 인프라 전용 Repository Model(UserModel 등) 표준을 제거하고, 프로젝트 자율 항목으로 분리
-- 1.8.1 (2026-01-11): QueryService 네이밍 규칙 추가 (application/services/*_query_service.py)
-- 1.8.0 (2026-01-11): 문서를 주제별 파일로 분리 (modules, schema/dto, repository model, domain model, summary)
-- 1.7.2 (2026-01-11): UserCriteria와 UserPagedCriteria로 분리, Schema/DTO 패턴과 일관성 확보, 상속 패턴으로 DRY 유지
-- 1.7.1 (2026-01-11): UserQueryCriteria → UserCriteria 단순화, search/filter/paging/order 필드 명확화
-- 1.7.0 (2026-01-11): 모듈 네이밍을 Models & Criteria로 정리, ORM Entity 위치를 infra/orm으로 명확화, QueryCondition → QueryCriteria 일관화
-- 1.6.0 (2026-01-11): Domain Model 네이밍 규칙 추가 (2.4) - DDD 엄격 적용 시 비즈니스 로직 모델 분리
-- 1.5.0 (2026-01-11): Entity 네이밍 규칙 추가 (2.3) - 데이터 계층 모델 패턴 (Create/Update/Delete Model 분리)
-- 1.4.0 (2026-01-11): DTO 클래스 네이밍 컨벤션 추가 - CQRS 패턴 (Command/Query) 기반
-- 1.3.1 (2026-01-11): ListResponse/PagedListResponse 필드명을 items로 통일 (완전한 일관성 확보)
-- 1.3.0 (2026-01-11): 대량 작업(Bulk Operations) 패턴 추가 - URL 액션 기반 네이밍
-- 1.2.0 (2026-01-11): GET 패턴에도 Get 접두사 추가 (모든 HTTP 메서드 완전 일관성 확보)
-- 1.1.0 (2026-01-11): Schema 클래스 네이밍 컨벤션 추가 (HTTP 메서드별 Request/Response 패턴)
-- 1.0.1 (2026-01-11): Router 네이밍을 복수형에서 단수형으로 변경 (전체 레이어 일관성 확보)
-- 1.0.0 (2026-01-11): 초기 버전 작성 — 모듈(파일) 네이밍 컨벤션 정의
+ - 1.10.0 (2026-01-11): 통합 응답 구조 표준 추가 (code/message/data 래핑, HTTP Status + Body code 병행)
+ - 1.9.1 (2026-01-11): Repository `exists_by_{field}` 메서드 규칙 추가 (EXISTS 최적화, 무결성 검증)
+ - 1.9.0 (2026-01-11): 메서드 네이밍 규칙 추가 (Interface/App/Domain 레이어별 패턴)
