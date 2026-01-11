@@ -9,6 +9,13 @@
 - 짧고 명확하며 설명적인 이름
 - 약어는 가급적 피하고, 사용 시 소문자로 표기 (예: `http_client.py`, `db_config.py`)
 
+### 1.6 Import 경로 규칙
+- **패키지 레벨 import**: 최하위 모듈명을 경로에 노출하지 않고 패키지 레벨까지만 import합니다.
+	- 권장: `from app.modules.baseinfo.application.dtos import ClassName`
+	- 비권장: `from app.modules.baseinfo.application.dtos.baseinfo_category_dto import ClassName`
+- **__init__.py 활용**: 각 패키지의 `__init__.py`에서 하위 모듈을 export하여 짧은 경로를 유지합니다.
+- **일관성**: 동일 레이어/도메인에서는 동일한 import 깊이를 맞춥니다.
+
 ### 레이어별 네이밍 패턴
 
 #### 1.1 Models & Criteria (domain/models/)
