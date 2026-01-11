@@ -84,7 +84,7 @@ tests/
 - **단일 책임 검증** (클래스/메서드 단위)
 - `pytest-mock` 또는 `unittest.mock` 사용
 
-### 2.2 Domain Model 테스트
+### 3.2 Domain Model 테스트
 
 도메인 모델은 **순수 비즈니스 로직**만 검증. Mock 불필요 (의존성 없음).
 
@@ -133,7 +133,7 @@ class TestUser:
         assert updated.user_id == user.user_id  # ID는 불변
 ```
 
-### 2.3 Application Service 테스트 (Mock Repository)
+### 3.3 Application Service 테스트 (Mock Repository)
 
 AppService는 **Repository를 Mock**으로 대체하여 비즈니스 오케스트레이션만 검증.
 
@@ -222,7 +222,7 @@ class TestUserAppService:
         mock_user_repo.save.assert_not_called()
 ```
 
-### 2.4 Repository 테스트 (Mock Session)
+### 3.4 Repository 테스트 (Mock Session)
 
 Repository 단위 테스트는 **SQLAlchemy Session을 Mock**으로 대체.
 

@@ -285,9 +285,12 @@ class ApiResponse(BaseModel, Generic[T]):
 
 #### 비즈니스 코드 (code) 네이밍 규칙
 - **형식**: UPPER_SNAKE_CASE 문자열
-- **도메인 접두사**: `{DOMAIN}_{상태}` (예: `USER_EMAIL_DUPLICATED`, `ORDER_ALREADY_SHIPPED`)
-- **성공 코드**: `SUCCESS`, `CREATED`, `UPDATED`, `DELETED`, `PARTIAL_SUCCESS`
-- **에러 코드**: 구체적이고 의미 있는 식별자 (HTTP Status와 중복 X)
+- **도메인 접두사 적용 대상**: 비즈니스 에러/비정상 상태 코드에 `{DOMAIN}_{상태}` 패턴 사용  
+  - 예: `USER_EMAIL_DUPLICATED`, `ORDER_ALREADY_SHIPPED`
+- **성공 코드**: 전역 공통 코드로 도메인 접두사를 붙이지 않음  
+  - 예: `SUCCESS`, `CREATED`, `UPDATED`, `DELETED`, `PARTIAL_SUCCESS`
+- **에러 코드**: 도메인 접두사를 포함한 구체적이고 의미 있는 식별자 (HTTP Status와 중복 X)
+  - 예: `USER_EMAIL_DUPLICATED`, `ORDER_ALREADY_SHIPPED`, `PAYMENT_METHOD_EXPIRED`
 
 #### 클라이언트 처리 규칙
 
