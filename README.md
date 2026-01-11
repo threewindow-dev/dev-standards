@@ -16,6 +16,8 @@ threewindow-dev의 github 저장소에서 관리되는 개발프로젝트에 적
 - [Git 개발 가이드라인](GIT_DEVELOPMENT_GUIDELINES.md) - Git 브랜치 전략 및 커밋 규칙
 - [런타임 버전 선택 표준](RUNTIME_VERSION_STANDARDS.md) - Node.js, Python, Java 버전 선택 기준
 - [Node.js BFF 표준](BFF_NODE_STANDARDS.md) - Next.js/Express 기반 BFF 구현 가이드
+- [Python FastAPI 개발 표준](python/FASTAPI_DEVELOPMENT_STANDARDS.md) - FastAPI 4-레이어 아키텍처 개발 가이드
+- [Python 네이밍 컨벤션](python/NAMING_CONVENTION.md) - Python 모듈, 클래스, 함수 네이밍 규칙
 
 ### 배포 관련
 - [싱글 컨테이너 배포 표준](SINGLE_CONTAINER_DEPLOYMENT_STANDARDS.md) - supervisord 기반 단일 Docker 컨테이너 배포 표준
