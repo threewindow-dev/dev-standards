@@ -1,5 +1,7 @@
 # Python 트랜잭션 관리 표준
 
+문서 탐색: [네이밍 요약](naming_convention/naming_summary.md) · [테스트 전략](TESTING_STRATEGY.md)
+
 Python에서는 Java의 `javax.sql` 같은 표준 트랜잭션 인터페이스가 없습니다. 따라서 우리는 **Transaction 패턴**으로 트랜잭션을 추상화하고, **DI(의존성 주입)**로 구현체를 주입합니다.
 
 ## 아키텍처 개요
@@ -57,7 +59,7 @@ infra/
 
 application/
   services/
-    user_app_service.py            # UnitOfWork 주입받음
+    user_app_service.py            # Transaction 주입받음
     product_app_service.py
 ```
 
@@ -213,7 +215,7 @@ class UserRepository(UserRepositoryProtocol):
 from application.dtos.user_dto import UpdateUserCommand, UpdateUserCommandResult
 from application.dtos.user_bulk_dto import UpdateUserBulkCommand, UpdateUserBulkResult
 from domain.protocols.user_repository_protocol import UserRepositoryProtocol
-from shared.protocols.unit_of_work_protocol import UnitOfWorkProtocol
+from shared.protocols.transaction_protocol import TransactionProtocol
 
 class UserAppService:
     def __init__(self, 
@@ -263,7 +265,7 @@ class UserAppService:
 
 ```python
 # main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from shared.infra.transaction import SqlAlchemyTransaction

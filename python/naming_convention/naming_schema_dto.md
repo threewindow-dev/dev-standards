@@ -1,5 +1,7 @@
 # Python 네이밍 컨벤션 — Schema & DTO
 
+문서 탐색: [모듈(파일)](naming_modules.md) · [Schema & DTO](naming_schema_dto.md) · [Repository/Entity](naming_repository_model.md) · [Domain Model](naming_domain_model.md) · [요약 & 변경 이력](naming_summary.md)
+
 ## 2. 클래스 네이밍
 
 ### 2.1 Schema 클래스 (interface/schemas/)
@@ -359,3 +361,21 @@ DTO는 Application Layer와 다른 레이어 간 데이터 전송을 위한 모�
 | 목록 조회 | `{Resource}ListQuery` | `{Resource}ListQueryResult` | `UserListQuery` |
 | 페이징 조회 | `{Resource}PagedListQuery` | `{Resource}PagedListQueryResult` | `UserPagedListQuery` |
 | 하위 타입 | `{Command/Query}{SubType}Info` | - | `RegisterUserCommandPermissionInfo` |
+
+---
+
+### 2.3 Entity ↔ DTO 분리의 장점 (가이드)
+
+Schema/DTO와 Entity를 분리하면 다음과 같은 이점이 있습니다. (세부 예시는 프로젝트별 문서/코드 참조)
+
+- **계층 간 독립적 진화**: DB 스키마(Entity) 변경 시에도 API 응답(DTO)은 유지 가능.
+- **데이터 노출 제어**: 민감 데이터는 Entity에만 존재, DTO에는 노출 금지로 안전한 응답.
+- **정규화/비정규화 유연성**: 성능을 위해 비정규화(엔티티)하더라도, DTO는 정규 구조 유지.
+- **ORM 활용 이점**: 관계/캐싱 등 ORM 고급 기능은 인프라에서 활용, DTO는 단순 유지.
+- **테스트 용이성**: DTO 중심으로 비즈니스 테스트 작성 → Entity 변경 영향 최소화.
+- **마이그레이션 안전성**: 스키마 버전 변경에도 DTO/Schema는 일관성 유지.
+
+권장 흐름:
+1) Router에서 Schema 검증 → DTO 변환
+2) AppService에서 비즈니스 처리 → 필요 시 Domain Model 사용
+3) Repository 구현에서 Entity ↔ DTO/Domain 변환을 캡슐화

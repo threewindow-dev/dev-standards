@@ -1,5 +1,7 @@
 # Python 네이밍 컨벤션 — Domain Model
 
+문서 탐색: [모듈(파일)](naming_modules.md) · [Schema & DTO](naming_schema_dto.md) · [Repository/Entity](naming_repository_model.md) · [Domain Model](naming_domain_model.md) · [요약 & 변경 이력](naming_summary.md)
+
 ## 2.4 Domain Model 네이밍 규칙 (Optional: DDD 엄격 적용)
 
 **상황**: Domain-Driven Design을 엄격하게 따르거나, 복잡한 비즈니스 로직을 표현해야 할 때, Domain Model을 별도로 정의할 수 있습니다. Domain Model은 **비즈니스 규칙을 캡슐화**하고 DB 영속성과는 완전히 독립적입니다. 도메인 레이어는 Entity(ORM)나 인프라 모델을 알지 못합니다.
