@@ -15,7 +15,7 @@
 ### Interface Layer 스웨거 문서화 규칙
 - interface 레이어의 Request와 Response의 Field, Path, Query에는 반드시 `examples`를 추가해야 함
 - `examples`는 배열 형태로 작성: `examples=["value1", "value2", "value3"]`
-- `example`는 deprecated 되었으므로 사용하지 않음.
+- `example`는 deprecated 되었으므로 사용하지 않음
 - 각 필드별로 다양한 예시 값을 제공하여 API 사용자의 이해도 향상
 
 ### 스웨거 설명 규칙
