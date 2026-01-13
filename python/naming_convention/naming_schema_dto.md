@@ -177,9 +177,10 @@ class ApiResponse(BaseModel, Generic[T]):
 }
 ```
 
-##### DELETE (삭제, 200 또는 204)
+##### DELETE (삭제, **200 OK 권장**)
 ```python
-# HTTP 200 OK (본문 포함)
+# HTTP 200 OK (본문 포함) - 권장
+# 삭제된 리소스 정보를 응답에 포함하여 클라이언트가 삭제 확인 가능
 {
   "code": "DELETED",
   "message": "User deleted successfully",
@@ -190,6 +191,7 @@ class ApiResponse(BaseModel, Generic[T]):
 }
 
 # HTTP 204 No Content (본문 없음) - 선택 가능
+# 삭제 완료를 나타내지만, 클라이언트가 추가 정보를 받지 못함
 ```
 
 #### 에러 응답 예시

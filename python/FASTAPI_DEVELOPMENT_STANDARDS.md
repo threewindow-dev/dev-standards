@@ -65,6 +65,21 @@ backend/
 - infra 구현체는 domain의 Protocol을 구현
 - 실제 바인딩은 core/dependencies.py에서 의존성 주입으로 연결
 
+## HTTP 상태 코드 및 응답 규칙
+- **200 OK**: 성공 응답 (GET, PATCH, DELETE 등) - 본문 포함
+- **201 Created**: 리소스 생성 성공 (POST) - 생성된 리소스 본문 포함
+- **204 No Content**: 성공하지만 응답 본문 없음 (사용 권장하지 않음, 표준은 200 권장)
+- **400 Bad Request**: 비즈니스 규칙 위반, 입력값 검증 실패
+- **401 Unauthorized**: 인증 실패
+- **403 Forbidden**: 권한 없음
+- **404 Not Found**: 리소스 없음
+- **500 Internal Server Error**: 예상치 못한 서버 오류
+
+삭제(DELETE) 작업은 **HTTP 200 OK (본문 포함)**를 권장합니다:
+- 클라이언트가 삭제된 리소스 정보를 확인 가능
+- 응답: `{code: "DELETED", message: "...", data: {id, deleted_at}}`
+
+
 ## 예시 (Python 3.13)
 ```
 # domain/entities/user.py
