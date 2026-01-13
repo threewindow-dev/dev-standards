@@ -1,6 +1,6 @@
 # Python 네이밍 컨벤션 — 요약 & 변경 이력
 
-문서 탐색: [모듈(파일)](naming_modules.md) · [Schema & DTO](naming_schema_dto.md) · [Repository/Entity](naming_repository_model.md) · [Domain Model](naming_domain_model.md) · [요약 & 변경 이력](naming_summary.md) · [트랜잭션 관리](../TRANSACTION_MANAGEMENT.md) · [테스트 전략](../TESTING_STRATEGY.md)
+문서 탐색: [모듈(파일)](naming_modules.md) · [Schema & DTO](naming_schema_dto.md) · [Repository/Entity](naming_repository_model.md) · [Domain Model](naming_domain_model.md) · [요약 & 변경 이력](naming_summary.md) · [데이터베이스](../DATABASE_STANDARDS.md) · [테스트 전략](../TESTING_STRATEGY.md)
 
 ## 요약 테이블
 

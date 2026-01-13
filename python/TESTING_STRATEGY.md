@@ -1,6 +1,6 @@
 # Python Testing Strategy
 
-문서 탐색: [네이밍 요약](naming_convention/naming_summary.md) · [트랜잭션 관리](TRANSACTION_MANAGEMENT.md)
+문서 탐색: [네이밍 요약](naming_convention/naming_summary.md) · [데이터베이스 계층](DATABASE_STANDARDS.md)
 
 FastAPI 프로젝트의 테스트 전략입니다. **Testcontainers 기반 API 테스트**와 **Mock 기반 Unit 테스트**로 계층별 테스트를 작성합니다.
 
