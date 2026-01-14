@@ -54,17 +54,13 @@ domain/protocols/users_repository.py    # 복수형 지양
 ```
 
 #### 1.3 Services (application/services/, domain/services/)
-- **단수형 명사 + `_app_service` / `_int_service` / `_domain_service` / `_query_service`** 접미사
+- **단수형 명사 + `_app_service` / `_domain_service` / `_query_service`** 접미사
 - 서비스 유형을 명확히 구분
 
 ```
 ✅ 권장 (AppService)
 application/services/user_app_service.py
 application/services/order_app_service.py
-
-✅ 권장 (IntService)
-application/services/payment_int_service.py
-application/services/notification_int_service.py
 
 ✅ 권장 (QueryService)
 application/services/user_query_service.py
@@ -160,9 +156,10 @@ infra/clients/payments_client.py   # 복수형 지양
 
 ```
 ✅ 권장
+dependencies.py            # src/ 루트 (프로젝트 DI 설정)
 core/config.py
-core/dependencies.py
-core/security.py
+core/exception_handlers.py
+core/logging.py
 utils/datetime_utils.py
 utils/string_utils.py
 

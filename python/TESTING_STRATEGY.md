@@ -8,6 +8,10 @@ FastAPI 프로젝트의 테스트 전략입니다. **Testcontainers 기반 API �
 
 ## 1. 테스트 계층 구조
 
+테스트 폴더는 `src`의 계층 구조를 그대로 따라갑니다. 단일 도메인 프로젝트에서도 동일하지만, 멀티 도메인에서는 `tests/{tier}/{domain}/...` 형태로 하위 도메인별 디렉터리를 분리해 소유권을 명확히 합니다.
+
+### 단일 도메인 예시
+
 ```
 tests/
 ├── unit/                           # Mock 기반 단위 테스트 (빠름)
@@ -20,19 +24,71 @@ tests/
 │   │   └── services/
 │   │       ├── test_user_app_service.py
 │   │       └── test_user_query_service.py
-│   └── infra/
-│       └── repositories/
-│           └── test_user_repository.py
-├── api/                            # Testcontainers 기반 API 통합 테스트 (느림)
-│   ├── {module}/
-│   │   ├── conftest.py            # 모듈별 PopulateHelper
-│   │   └── interface/
+├── api/               # Testcontainers 기반 API 통합 테스트 (느림)             
+│   ├── interface/
 │   │       └── routers/
 │   │           └── test_user_router.py
-│   └── repositories/
-│       └── test_user_repository_integration.py
+│   └── infra/
+│       └── repositories/
+│           └── test_user_repository.py 
 └── conftest.py                     # Pytest fixtures (전역)
 ```
+
+### 멀티 도메인 예시 (src/subdomains 기준)
+
+```
+src/
+└── subdomains/
+    ├── user/
+    │   ├── domain/
+    │   │   └── models/user.py
+    │   ├── application/
+    │   │   └── services/user_app_service.py
+    │   ├── infra/
+    │   │   └── repositories/user_repository.py
+    │   └── interface/
+    │       └── routers/user_router.py
+    └── order/
+        └── domain/
+            └── models/order.py
+
+tests/
+├── unit/                           # src/subdomains 하위 경로를 그대로 미러링
+│   ├── user/
+│   │   ├── domain/
+│   │   │   └── models/
+│   │   │       └── test_user.py
+│   │   ├── application/
+│   │   │   └── services/
+│   │   │       └── test_user_app_service.py
+│   │   └── infra/
+│   │       └── repositories/
+│   │           └── test_user_repository.py
+│   └── order/
+│       └── domain/
+│           └── models/
+│               └── test_order.py
+├── api/                            # 도메인별 통합 테스트도 동일하게 미러링
+│   ├── user/
+│   │   ├── conftest.py  # 모듈별 fixture 테스트를 위해 DB CRUD 작업이 필요할 때 여기서 Helper를 제공
+│   │   ├── interface/
+│   │   │   └── routers/
+│   │   │       └── test_user_router.py
+│   │   └── infra/
+│   │       └── repositories/
+│   │           └── test_user_repository.py
+│   └── order/
+│       ├── conftest.py  
+│       └── interface/
+│           └── routers/
+│               └── test_order_router.py
+└── conftest.py   # Pytest fixtures (전역)
+```
+
+**경로 매핑 규칙 (예시)**
+- `src/subdomains/user/domain/models/user.py` → `tests/unit/user/domain/models/test_user.py`
+- `src/subdomains/user/interface/routers/user_router.py` → `tests/api/user/interface/routers/test_user_router.py`
+- `src/subdomains/user/infra/repositories/user_repository.py` → `tests/api/user/infra/repositories/test_user_repository.py`
 
 ---
 
@@ -397,7 +453,7 @@ API 통합 테스트에서 테스트 데이터 준비 및 정리를 일관되게
 #### PopulateHelper 구조
 
 ```python
-# tests/api/{module}/conftest.py
+# tests/api/{subdomain}/conftest.py
 import random
 from sqlalchemy.ext.asyncio import AsyncSession
 

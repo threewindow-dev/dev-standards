@@ -72,6 +72,8 @@ subdomains/
       models/
         user.py                    # Domain Entity
     infra/
+      entities/
+        user_entity.py             # SQLAlchemy ORM Entity
       repositories/
         user_repository.py         # Repository 구현
     application/
@@ -480,7 +482,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from subdomains.user.domain.models.user import User
 from subdomains.user.domain.protocols.user_repository import UserRepositoryProtocol
-from subdomains.user.infra.models.user_orm import UserORM
+from subdomains.user.infra.entities.user_entity import UserEntity
 from shared.errors import InfraError
 
 class SQLAlchemyUserRepository(UserRepositoryProtocol):
@@ -488,7 +490,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
     
     async def find_by_id(self, conn: AsyncSession, user_id: int) -> User | None:
         result = await conn.execute(
-            select(UserORM).where(UserORM.id == user_id)
+            select(UserEntity).where(UserEntity.id == user_id)
         )
         orm = result.scalar_one_or_none()
         return self._to_domain(orm) if orm else None
@@ -501,7 +503,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
         return user
     
     async def update(self, conn: AsyncSession, user: User) -> User:
-        orm = await conn.get(UserORM, user.id)
+        orm = await conn.get(UserEntity, user.id)
         if not orm:
             raise InfraError(f"USER_NOT_FOUND: {user.id}")
         
@@ -512,10 +514,10 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
         return user
     
     async def remove(self, conn: AsyncSession, user_id: int) -> None:
-        await conn.execute(delete(UserORM).where(UserORM.id == user_id))
+        await conn.execute(delete(UserEntity).where(UserEntity.id == user_id))
         await conn.flush()
     
-    def _to_domain(self, orm: UserORM) -> User:
+    def _to_domain(self, orm: UserEntity) -> User:
         return User(
             id=orm.id,
             username=orm.username,
@@ -524,8 +526,8 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             created_at=orm.created_at
         )
     
-    def _to_orm(self, user: User) -> UserORM:
-        return UserORM(
+    def _to_orm(self, user: User) -> UserEntity:
+        return UserEntity(
             id=user.id,
             username=user.username,
             email=user.email,
@@ -695,7 +697,7 @@ class UserAppService:
 ### FastAPI Dependencies
 
 ```python
-# core/dependencies.py
+# dependencies.py (src/)
 import os
 from shared.protocols.database import DatabasePool
 from shared.infra.database import (
@@ -745,7 +747,7 @@ async def get_user_app_service() -> UserAppService:
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from core.dependencies import set_db_pool
+from dependencies import set_db_pool
 from shared.infra.database import db_pool_factory
 
 @asynccontextmanager
@@ -763,9 +765,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Router 등록
-from subdomains.user.interface.routers import user_router
-app.include_router(user_router.router, prefix="/api")
+# Router 등록 (서브도메인 routers/__init__.py에서 import)
+from subdomains.user.interface.routers import router as user_router
+app.include_router(user_router)
 ```
 
 ## 모범 사례
