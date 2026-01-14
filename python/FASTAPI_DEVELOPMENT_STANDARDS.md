@@ -39,6 +39,8 @@ backend/
         ├── user/
         │   ├── interface/
         │   │   ├── routers/
+        │   │   │   ├── __init__.py      # 서브도메인 router 통합 (prefix 책임)
+        │   │   │   └── user_router.py   # 개별 라우터 (경로만 정의)
         │   │   └── schemas/
         │   ├── application/
         │   │   ├── dtos/
@@ -62,6 +64,48 @@ backend/
     ├── application/   # dtos, services(AppService, IntService)
     ├── domain/        # entities, services, protocols
     └── infra/         # repositories, clients, database
+```
+
+## Router 구성 규칙
+
+### 서브도메인별 Router 통합
+
+**개별 Router 파일** (`user_router.py`):
+- prefix 없이 경로만 정의
+- tags와 responses만 설정
+- 예: `router = APIRouter(tags=["users"])`
+
+**통합 Router** (`routers/__init__.py`):
+- 모든 개별 router를 통합하고 prefix 설정
+- 서브도메인이 API 경로 책임
+- main.py에서는 이 router를 import
+
+```python
+# subdomains/user/interface/routers/user_router.py
+from fastapi import APIRouter
+
+router = APIRouter(tags=["users"])
+
+@router.post("/")
+async def create_user(...):
+    ...
+
+@router.get("/{user_id}")
+async def get_user(...):
+    ...
+
+# subdomains/user/interface/routers/__init__.py
+from fastapi import APIRouter
+from .user_router import router as user_router
+
+router = APIRouter(prefix="/api/users")
+router.include_router(user_router)
+
+__all__ = ["router"]
+
+# main.py
+from subdomains.user.interface.routers import router as user_router
+app.include_router(user_router)
 ```
 
 ## 서비스 레이어 구분

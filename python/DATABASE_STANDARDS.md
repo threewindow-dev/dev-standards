@@ -763,9 +763,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Router 등록
-from subdomains.user.interface.routers import user_router
-app.include_router(user_router.router, prefix="/api")
+# Router 등록 (서브도메인 routers/__init__.py에서 import)
+from subdomains.user.interface.routers import router as user_router
+app.include_router(user_router)
 ```
 
 ## 모범 사례
