@@ -50,6 +50,7 @@ backend/
         │   │   ├── services/    # DomainService
         │   │   └── protocols/   # Repository/Client Protocol(인터페이스)
         │   └── infra/
+        │       ├── entities/
         │       ├── repositories/
         │       └── clients/
         └── employee/
