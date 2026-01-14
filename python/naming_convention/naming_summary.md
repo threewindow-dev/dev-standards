@@ -8,11 +8,10 @@
 |--------|--------|---------|------|
 | Models (domain/models) | - (또는 `_model`) | 단수 | `user.py` |
 | Criteria (domain/models/criteria) | `_criteria` | 단수 | `user_criteria.py`, `user_paged_criteria.py` |
-| ORM Entities (infra/orm/entities) | `_entity` (선택) | 단수 | `user_entity.py` |
+| ORM Entities (infra/entities) | `_entity` (선택) | 단수 | `user_entity.py` |
 | (선택) Infra Models | 프로젝트 자율 (도메인 네이밍과 구분) | 단수 | `InfraUserProjection` 등 |
 | Protocols | `_protocol` | 단수 | `user_repository_protocol.py` |
 | AppService | `_app_service` | 단수 | `user_app_service.py` |
-| IntService | `_int_service` | 단수 | `payment_int_service.py` |
 | QueryService | `_query_service` | 단수 | `user_query_service.py` |
 | DomainService | `_domain_service` | 단수 | `order_pricing_domain_service.py` |
 | Repositories | `_repository` | 단수 | `user_repository.py` |
@@ -27,10 +26,10 @@
 |--------|------|------|------|
 | Interface (Router) | `post_{resource}` / `put_{resource}` / `patch_{resource}` / `delete_{resource}` | HTTP 메서드에 1:1 대응 | `post_user` |
 | Interface (Router) | `get_{resource}` / `get_{resource}_list` / `get_{resource}_paged_list` | 조회, 목록, 페이징 | `get_user_paged_list` |
-| Application (App/Int/Query Service) | `register_{resource}` / `update_{resource}` / `delete_{resource}` | 상태 변경 유스케이스 | `register_user` |
-| Application (App/Query Service) | `get_{resource}` / `get_{resource}_list` / `get_{resource}_paged_list` | 조회 유스케이스 | `get_user_list` |
-| Domain (Domain Service / Repository Port) | `create_{entity}` / `update_{entity}` / `delete_{entity}` | 도메인 명령 | `create_user` |
-| Domain (Domain Service / Repository Port) | `get_{entity}_by_id` / `query_{entity}` | 조회/검색 | `get_user_by_id`, `query_user` |
+| Application (AppService/QueryService) | `register_{resource}` / `update_{resource}` / `delete_{resource}` | 상태 변경 유스케이스 | `register_user` |
+| Application (AppService/QueryService) | `get_{resource}` / `get_{resource}_list` / `get_{resource}_paged_list` | 조회 유스케이스 | `get_user_list` |
+| Domain (DomainService / Repository Protocol) | `create_{entity}` / `update_{entity}` / `delete_{entity}` | 도메인 명령 | `create_user` |
+| Domain (DomainService / Repository Protocol) | `get_{entity}_by_id` / `query_{entity}` | 조회/검색 | `get_user_by_id`, `query_user` |
 
 ### Repository 메서드 추가 규칙
 - 존재 여부 확인은 `exists_by_{field}` 메서드 사용 (EXISTS 쿼리로 최적화)

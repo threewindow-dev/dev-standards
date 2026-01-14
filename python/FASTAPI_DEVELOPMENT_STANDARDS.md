@@ -11,7 +11,7 @@
 | DDD 레이어 | 표준 레이어 매핑 | 주요 책임 |
 |------------|------------------|-----------|
 | interface  | routers, schemas | 외부 API 경계, 요청/응답 검증, 클라이언트별 라우팅 |
-| application| services (+ dtos)| 유스케이스(AppService, IntService), 트랜잭션/권한, DTO 변환 |
+| application| services (+ dtos)| 유스케이스(AppService), 트랜잭션/권한, DTO 변환 |
 | domain     | models, domain services, protocols | 도메인 모델/VO, 도메인 규칙, Repository/Client Protocol 정의 |
 | infra      | repositories, clients, database | DB/외부 시스템 구현체, Repository/Client 구현, 연결 관리 |
 
@@ -30,6 +30,8 @@ backend/
     ├── shared/                   # 재사용 가능 공통 코드
     │   ├── errors.py             # 기본 예외 계층
     │   ├── schemas.py            # ApiResponse<T>
+    │   ├── context.py            # ContextVar 트랜잭션 컨텍스트
+    │   ├── decorators.py         # @transactional, @use_transaction
     │   ├── protocols/            # 범용 추상 인터페이스
     │   │   ├── database.py       # DatabasePool Protocol
     │   │   └── transaction.py    # Transaction Protocol
@@ -44,7 +46,7 @@ backend/
         │   │   └── schemas/
         │   ├── application/
         │   │   ├── dtos/
-        │   │   └── services/    # AppService, IntService
+        │   │   └── services/    # AppService (DomainService 제외)
         │   ├── domain/
         │   │   ├── models/      # Domain Model, VO
         │   │   ├── services/    # DomainService
@@ -62,8 +64,8 @@ backend/
 backend/
 └── src/
     ├── interface/     # routers, schemas
-    ├── application/   # dtos, services(AppService, IntService)
-    ├── domain/        # models, services, protocols
+    ├── application/   # dtos, services (AppService만)
+    ├── domain/        # models, services (DomainService), protocols
     └── infra/         # repositories, clients, database
 ```
 
@@ -110,9 +112,93 @@ app.include_router(user_router)
 ```
 
 ## 서비스 레이어 구분
-- AppService: 트랜잭션 경계, 권한 체크, 유스케이스 조합, 도메인 Protocol만 의존 (application/services)
-- IntService: 내부/외부 시스템 간 연동(필요 시), 메시지 브로커/3rd-party 호출 (application/services)
+- AppService: 유스케이스 구현, 트랜잭션 경계 관리(데코레이터), 권한 체크, 도메인 Protocol 의존 (application/services)
 - DomainService: 엔티티 외부의 복잡한 도메인 규칙 구현(단순 Repository 위임 금지) (domain/services)
+
+## 트랜잭션 관리 (ContextVar 기반)
+트랜잭션은 ContextVar를 통해 암묵적으로 전파되며, 데코레이터를 사용하여 자동으로 관리됩니다:
+
+### @transactional 데코레이터
+AppService 메서드에 적용하여 트랜잭션 생명주기를 자동 관리합니다:
+
+```python
+from shared.infra import transactional
+
+class UserAppService:
+    def __init__(self, user_repo: UserRepositoryProtocol):
+        self._user_repo = user_repo
+    
+    @transactional(mode="writable")
+    async def create_user(self, cmd: CreateUserCommand) -> UserDTO:
+        """쓰기 트랜잭션 자동 관리"""
+        user = User.create(
+            username=cmd.username,
+            email=cmd.email,
+            full_name=cmd.full_name,
+        )
+        saved = await self._user_repo.add(user)  # conn 자동 주입
+        return UserDTO.from_domain(saved)
+    
+    @transactional(mode="readonly")
+    async def get_user(self, user_id: int) -> UserDTO | None:
+        """읽기 전용 트랜잭션"""
+        user = await self._user_repo.find_by_id(user_id)
+        return UserDTO.from_domain(user) if user else None
+```
+
+### @use_transaction 데코레이터
+Repository 메서드에 적용하여 ContextVar에서 커넥션을 자동 주입합니다:
+
+```python
+from shared.infra import use_transaction
+
+class SQLAlchemyUserRepository(UserRepositoryProtocol):
+    @use_transaction()
+    async def find_by_id(self, conn: Connection, user_id: int) -> User | None:
+        """커넥션이 자동으로 첫 번째 파라미터로 주입됨"""
+        result = await conn.execute(
+            select(UserEntity).where(UserEntity.id == user_id)
+        )
+        entity = result.scalar_one_or_none()
+        return entity.to_domain() if entity else None
+    
+    @use_transaction()
+    async def add(self, conn: Connection, user: User) -> User:
+        """커넥션 자동 주입, AppService는 conn 파라미터 생략"""
+        entity = UserEntity.from_domain(user)
+        conn.add(entity)
+        await conn.flush()
+        await conn.refresh(entity)
+        return entity.to_domain()
+```
+
+### AppService 간 호출 (트랜잭션 전파)
+다른 AppService를 호출할 때 트랜잭션이 자동으로 공유됩니다:
+
+```python
+class OrderAppService:
+    def __init__(
+        self,
+        order_repo: OrderRepositoryProtocol,
+        user_service: UserAppService,  # 다른 AppService 주입
+    ):
+        self._order_repo = order_repo
+        self._user_service = user_service
+    
+    @transactional(mode="writable")
+    async def create_order(self, cmd: CreateOrderCommand) -> OrderDTO:
+        """트랜잭션 시작 - UserService 호출도 동일 트랜잭션 공유"""
+        # 1. 사용자 검증 (동일 트랜잭션)
+        user = await self._user_service.get_user(cmd.user_id)
+        if not user:
+            raise UserNotFoundError(cmd.user_id)
+        
+        # 2. 주문 생성 및 저장 (동일 트랜잭션)
+        order = Order.create(user_id=user.id, items=cmd.items)
+        saved = await self._order_repo.add(order)
+        
+        return OrderDTO.from_domain(saved)
+```
 
 ## DTO vs Schema 분리
 - Schema (interface/schemas): HTTP 경계에서의 요청/응답 검증 및 문서화용
@@ -219,7 +305,6 @@ def get_user_app_service() -> UserAppService:
 
 ## Router 클라이언트 분리
 - interface/routers/client/{manager,user,device,...} 로 클라이언트 유형별 라우팅 분리
-- 공통 라우팅/권한 정책은 AppService/IntService에서 관리
 
 ## 마이그레이션 팁 (단일 파일 → DDD)
 1) schemas와 routers를 interface로 이동
