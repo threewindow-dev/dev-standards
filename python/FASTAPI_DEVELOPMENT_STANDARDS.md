@@ -12,7 +12,7 @@
 |------------|------------------|-----------|
 | interface  | routers, schemas | 외부 API 경계, 요청/응답 검증, 클라이언트별 라우팅 |
 | application| services (+ dtos)| 유스케이스(AppService, IntService), 트랜잭션/권한, DTO 변환 |
-| domain     | entities, domain services, protocols | 엔티티/VO, 도메인 규칙, Repository/Client Protocol 정의 |
+| domain     | models, domain services, protocols | 도메인 모델/VO, 도메인 규칙, Repository/Client Protocol 정의 |
 | infra      | repositories, clients, database | DB/외부 시스템 구현체, Repository/Client 구현, 연결 관리 |
 
 ## 폴더 구조: 도메인 모듈 기준 (예시)
@@ -46,7 +46,7 @@ backend/
         │   │   ├── dtos/
         │   │   └── services/    # AppService, IntService
         │   ├── domain/
-        │   │   ├── entities/    # Entity, VO
+        │   │   ├── models/      # Domain Model, VO
         │   │   ├── services/    # DomainService
         │   │   └── protocols/   # Repository/Client Protocol(인터페이스)
         │   └── infra/
@@ -62,7 +62,7 @@ backend/
 └── src/
     ├── interface/     # routers, schemas
     ├── application/   # dtos, services(AppService, IntService)
-    ├── domain/        # entities, services, protocols
+    ├── domain/        # models, services, protocols
     └── infra/         # repositories, clients, database
 ```
 
@@ -140,7 +140,7 @@ app.include_router(user_router)
 
 ## 예시 (Python 3.13)
 ```
-# domain/entities/user.py
+# domain/models/user.py
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -157,11 +157,11 @@ from .user import User
 
 class UserRepositoryProtocol(Protocol):
     def find_by_id(self, id: int) -> User | None: ...
-    def save(self, entity: User) -> User: ...
+    def save(self, user: User) -> User: ...
 
 # application/services/user_app_service.py
 from ..domain.protocols.user_repository_protocol import UserRepositoryProtocol
-from ..domain.entities.user import User
+from ..domain.models.user import User
 
 class UserAppService:
     def __init__(self, repo: UserRepositoryProtocol):
@@ -173,13 +173,13 @@ class UserAppService:
 
 # infra/repositories/user_repository.py
 from ..domain.protocols.user_repository_protocol import UserRepositoryProtocol
-from ..domain.entities.user import User
+from ..domain.models.user import User
 
 class UserRepository(UserRepositoryProtocol):
     def find_by_id(self, id: int) -> User | None:
         ...  # 실제 DB 접근 구현 (예: SELECT)
 
-    def save(self, entity: User) -> User:
+    def save(self, user: User) -> User:
         ...  # 실제 DB 접근 구현 (예: INSERT/UPDATE)
 
 # dependencies.py (src/)
@@ -197,11 +197,11 @@ def get_user_app_service() -> UserAppService:
 ## 계층별 의존성 규칙 (요약)
 - common/domain: 의존성 없음
 - common/infra: common/domain만 의존 가능
-- domain/entities: 의존성 없음
-- domain/services: domain/entities 의존 가능
+- domain/models: 의존성 없음
+- domain/services: domain/models 의존 가능
 - application/dtos: 의존성 없음
-- application/services: application/dtos, domain/entities, domain/services 의존 가능
-- infra/repositories, infra/clients: domain/entities 의존 가능
+- application/services: application/dtos, domain/models, domain/services 의존 가능
+- infra/repositories, infra/clients: domain/models 의존 가능
 - interface/schemas: 의존성 없음
 - interface/routers: interface/schemas, application/dtos, application/services 의존 가능
 
@@ -223,7 +223,7 @@ def get_user_app_service() -> UserAppService:
 ## 마이그레이션 팁 (단일 파일 → DDD)
 1) schemas와 routers를 interface로 이동
 2) 요청/응답 Schema와 내부 전달 DTO 분리
-3) 도메인 엔티티/서비스/Protocol 정의 후, 기존 Repository를 Protocol 구현으로 변환
+3) 도메인 모델/서비스/Protocol 정의 후, 기존 Repository를 Protocol 구현으로 변환
 4) AppService로 유스케이스/트랜잭션/권한 로직 집약
 5) dependencies.py (src/)에서 의존성 주입 구성
 
