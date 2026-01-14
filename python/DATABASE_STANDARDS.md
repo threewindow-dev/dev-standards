@@ -695,7 +695,7 @@ class UserAppService:
 ### FastAPI Dependencies
 
 ```python
-# core/dependencies.py
+# dependencies.py (src/)
 import os
 from shared.protocols.database import DatabasePool
 from shared.infra.database import (
@@ -745,7 +745,7 @@ async def get_user_app_service() -> UserAppService:
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from core.dependencies import set_db_pool
+from dependencies import set_db_pool
 from shared.infra.database import db_pool_factory
 
 @asynccontextmanager

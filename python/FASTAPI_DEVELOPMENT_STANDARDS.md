@@ -19,28 +19,42 @@
 ```
 backend/
 └── src/
-    ├── core/                     # 설정, 의존성, 보안
-    ├── domains/                  # 도메인 모듈 집합
-    │   ├── user/
-    │   │   ├── interface/
-    │   │   │   ├── routers/
-    │   │   │   └── schemas/
-    │   │   ├── application/
-    │   │   │   ├── dtos/
-    │   │   │   └── services/    # AppService, IntService
-    │   │   ├── domain/
-    │   │   │   ├── entities/    # Entity, VO
-    │   │   │   ├── services/    # DomainService
-    │   │   │   └── protocols/   # Repository/Client Protocol(인터페이스)
-    │   │   └── infra/
-    │   │       ├── repositories/
-    │   │       └── clients/
-    │   └── employee/
-    │       └── ... (동일 패턴)
-    └── shared/                   # 공통 (예: exceptions, utils)
+    ├── main.py                   # 진입점
+    ├── dependencies.py           # 프로젝트 DI 설정 (subdomains 참조)
+    ├── core/                     # 프로젝트별 설정 (재사용 불가)
+    │   ├── exception_handlers.py
+    │   ├── logging.py
+    │   ├── common_responses.py   # 프로젝트 OpenAPI 응답 정의
+    │   ├── protocols/            # 프로젝트 인터페이스
+    │   └── infra/                # 프로젝트 구현체
+    ├── shared/                   # 재사용 가능 공통 코드
+    │   ├── errors.py             # 기본 예외 계층
+    │   ├── schemas.py            # ApiResponse<T>
+    │   ├── protocols/            # 범용 추상 인터페이스
+    │   │   ├── database.py       # DatabasePool Protocol
+    │   │   └── transaction.py    # Transaction Protocol
+    │   └── infra/
+    │       └── database.py       # SQLAlchemy/Psycopg 구현
+    └── subdomains/                  # 도메인 모듈 집합 
+        ├── user/
+        │   ├── interface/
+        │   │   ├── routers/
+        │   │   └── schemas/
+        │   ├── application/
+        │   │   ├── dtos/
+        │   │   └── services/    # AppService, IntService
+        │   ├── domain/
+        │   │   ├── entities/    # Entity, VO
+        │   │   ├── services/    # DomainService
+        │   │   └── protocols/   # Repository/Client Protocol(인터페이스)
+        │   └── infra/
+        │       ├── repositories/
+        │       └── clients/
+        └── employee/
+            └── ... (동일 패턴)
 ```
 
-## 폴더 구조: 단일 레포지토리(도메인 모듈 구분 없음)
+## 폴더 구조: 도메인 모듈 구분 없음
 ```
 backend/
 └── src/
@@ -63,7 +77,7 @@ backend/
 ## 의존성 역전(Dependency Inversion)
 - application은 domain의 Protocol(인터페이스)만 의존
 - infra 구현체는 domain의 Protocol을 구현
-- 실제 바인딩은 core/dependencies.py에서 의존성 주입으로 연결
+- 실제 바인딩은 src/dependencies.py에서 의존성 주입으로 연결
 
 ## HTTP 상태 코드 및 응답 규칙
 - **200 OK**: 성공 응답 (GET, PATCH, DELETE 등) - 본문 포함
@@ -124,9 +138,9 @@ class UserRepository(UserRepositoryProtocol):
     def save(self, entity: User) -> User:
         ...  # 실제 DB 접근 구현 (예: INSERT/UPDATE)
 
-# core/dependencies.py
-from ..application.services.user_app_service import UserAppService
-from ..infra.repositories.user_repository import UserRepository
+# dependencies.py (src/)
+from application.services.user_app_service import UserAppService
+from infra.repositories.user_repository import UserRepository
 
 def get_user_app_service() -> UserAppService:
     return UserAppService(UserRepository())
@@ -167,7 +181,7 @@ def get_user_app_service() -> UserAppService:
 2) 요청/응답 Schema와 내부 전달 DTO 분리
 3) 도메인 엔티티/서비스/Protocol 정의 후, 기존 Repository를 Protocol 구현으로 변환
 4) AppService로 유스케이스/트랜잭션/권한 로직 집약
-5) core/dependencies.py에서 의존성 주입 구성
+5) dependencies.py (src/)에서 의존성 주입 구성
 
 ## 버전 이력
 - 1.2.3 (2026-01-11): 예시 도메인을 Company에서 User로 변경

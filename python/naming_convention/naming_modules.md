@@ -160,9 +160,10 @@ infra/clients/payments_client.py   # 복수형 지양
 
 ```
 ✅ 권장
+dependencies.py            # src/ 루트 (프로젝트 DI 설정)
 core/config.py
-core/dependencies.py
-core/security.py
+core/exception_handlers.py
+core/logging.py
 utils/datetime_utils.py
 utils/string_utils.py
 
