@@ -7,6 +7,13 @@
 - 4 레이어를 도메인 중심으로 재구성: interface, application, domain, infra.
 - 모든 예시는 Python 3.13 문법을 사용합니다: list[T], dict[str, Any], T | None, @dataclass(slots=True).
 
+## 환경 변수 및 설정 관리
+- 설정은 단일 진입점인 [backend/src/core/config.py](backend/src/core/config.py)에서 dataclass(AppConfig, DatabaseConfig, AuthConfig)로 관리하고, `from_env()`에서 기본값과 필수 값 검증을 수행합니다. DB_PASSWORD처럼 필수 항목은 누락 시 예외를 발생시켜 조기 실패를 유도합니다.
+- 애플리케이션에서는 `get_config()`로 한 번 로드해 캐싱하며, FastAPI DI(dependencies.py)와 main.py가 이 값을 주입합니다. shared/infra 레이어는 환경 변수를 직접 읽지 않고, DI로 전달된 값을 생성자 인자로만 사용합니다(레이어 의존성 역전 보장).
+- DB 연결 정보 예시: DB_HOST=localhost, DB_PORT=5432, DB_NAME=fastexit, DB_USER=postgres, DB_PASSWORD=<필수>, REPOSITORY_TYPE=sqlalchemy, JWT_SECRET=dev-secret-key-change-in-production, JWT_ALGORITHM=HS256, JWT_EXPIRES_IN_MINUTES=60.
+- 테스트에서 환경 변수를 변경하면 `core.config._config = None` 으로 캐시를 초기화한 뒤 `get_config()`를 다시 호출해 최신 값을 반영합니다.
+- 신규 설정 추가 시: (1) core/config.py에 필드와 기본값/검증 추가 → (2) dependencies.py 또는 main.py에서 해당 값을 주입 → (3) shared/infra에는 인자만 전달하고 os.getenv 사용 금지.
+
 ## 레이어 매핑
 | DDD 레이어 | 표준 레이어 매핑 | 주요 책임 |
 |------------|------------------|-----------|
@@ -22,6 +29,7 @@ backend/
     ├── main.py                   # 진입점
     ├── dependencies.py           # 프로젝트 DI 설정 (subdomains 참조)
     ├── core/                     # 프로젝트별 설정 (재사용 불가)
+    │   ├── config.py
     │   ├── exception_handlers.py
     │   ├── logging.py
     │   ├── common_responses.py   # 프로젝트 OpenAPI 응답 정의
